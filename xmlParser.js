@@ -5,9 +5,17 @@ function XMLParser() {
         var xml = [];
         
         for (var i = 0; i < tags.length; i++) {
+            if(tags[i].indexOf("<xs")==0 || tags[i].indexOf("</xs")==0)
+				continue;
             if (tags[i].indexOf('?xml') < 0) {
                 if (tags[i].indexOf('<') == 0 && tags[i].indexOf('CDATA') < 0) {
-                    xml.push(parseTag(tags[i]));
+                    if(tags[i].indexOf('/>')>-1){								
+						//empty tags
+						xml.push(parseTag(tags[i],"-"));
+					}
+					else {
+						xml.push(parseTag(tags[i]));
+					}                                      
                 } else {
                     xml[xml.length - 1].value = parseValue(tags[i]);
                 }
@@ -17,14 +25,14 @@ function XMLParser() {
         return convertTagsArrayToTree(xml)[0];
     }
     
-    function parseTag(tagText, parent) {
+    function parseTag(tagText, val) {
         tagText = tagText.match(/([^\s]*)=["'](.*?)["']|([\/?\w\-]+)/g);
         
         var tag = {
             name: tagText[0],
             attributes: {},
             children: [],
-            value: '',
+            value: val? val:'',
             getElementsByTagName: function (tagName) {
                 var matches = [];
                 
@@ -42,8 +50,8 @@ function XMLParser() {
         
         for (var i = 1; i < tagText.length; i++) {
             var attribute = tagText[i].split('=');
-            
-            tag.attributes[attribute[0]] = attribute[1].replace(/"/g, '').replace(/'/g, '').trim();
+            if(attribute && attribute.length>1)
+				tag.attributes[attribute[0]] = attribute[1].replace(/"/g, '').replace(/'/g, '').trim();          
         }
         
         return tag;
@@ -65,6 +73,13 @@ function XMLParser() {
         }
         
         var tag = xml.shift();
+        
+         if(tag.value=="-"){		
+			tag.value="";
+			xmlTree.push(tag);
+            xmlTree = xmlTree.concat(convertTagsArrayToTree(xml));
+			return xmlTree;
+		}
         
         if (tag.value.indexOf('</') > -1) {
             tag.value = tag.value.substring(0, tag.value.indexOf('</'));
