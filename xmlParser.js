@@ -51,7 +51,7 @@ function XMLParser() {
         for (var i = 1; i < tagText.length; i++) {
             var attribute = tagText[i].split('=');
             if(attribute && attribute.length>1)
-				tag.attributes[attribute[0]] = attribute[1].replace(/"/g, '').replace(/'/g, '').trim();          
+		tag.attributes[attribute[0]] = attribute[1].replace(/"/g, '').replace(/'/g, '').trim();          
         }
         
         return tag;
@@ -75,11 +75,11 @@ function XMLParser() {
         var tag = xml.shift();
         
          if(tag.value=="-"){		
-			tag.value="";
-			xmlTree.push(tag);
-            xmlTree = xmlTree.concat(convertTagsArrayToTree(xml));
-			return xmlTree;
-		}
+		tag.value="";
+		xmlTree.push(tag);
+            	xmlTree = xmlTree.concat(convertTagsArrayToTree(xml));
+		return xmlTree;
+	}
         
         if (tag.value.indexOf('</') > -1) {
             tag.value = tag.value.substring(0, tag.value.indexOf('</'));
